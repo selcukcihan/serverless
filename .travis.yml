@@ -1,0 +1,7 @@
+deploy:
+  provider: lambda
+  function_name: "my_randomize_method"
+  region: "us-east-1"
+  role: "arn:aws:iam::441314088136:role/my_lambda_role"
+  runtime: "nodejs4.3"
+  handler_name: "handler"
