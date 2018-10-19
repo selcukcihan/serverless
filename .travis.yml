@@ -8,6 +8,8 @@ deploy:
   role: arn:aws:iam::441314088136:role/my_lambda_role
   runtime: nodejs8.10
   handler_name: handler
+  module_name: index
+  zip: index.js
   secret_access_key:
     secure: ILE166J2J49MNDGQJUsvcD0HfwXwlCwcsFzqveqBSwRTR1zpuEXjqUvPuv0kA0vIAWyVWES2QgibkqxMlPHqQWV4ZqHzvy7D1yEaaIWDiqqXTUqZt4YKSBsP0+LQ4i/SXFbfglXdGFqg1ofsZVMGfJAFBcJ02cN6ImQCE0mGYbo/n2eN9f7Q079MjWxuaw5W4Wy0YHh77ogduONL6ktVgo0SwilyyfsW8Pu0Ljkw/YwiCU/agDpk4dsjCAxglUfaMe7kIbc43jdiP+F5RnkHGOv2MgJZp0804eBUtgPwTR8cGSk2CuDTe4q73YDM4PbTkPMuor122ApMkqBTabzynEuV1+wl6SdcKQw9O/0FgRlhoVUz3Yc9DIo8aTjd50+k40kgT84FUPg1ZJHafG/r53i6pmP3bouQ4WLCxmiWvbmy/KXa5JuTZeRdiu0xDyMU9GNfOP4vDN6WAMze+zJi1mAjQOW0NJytGPKeZz57YP+NPGybpIPn32E8wk22OkA+z32wydzeXUzdTse255PlFvQxqngzOn9sW/BoH8Avv9+1x16D5w0G/u6cEdsn315/AqW4GarCCLy4emxE2IBLuXvVTvNI4UlDkBoq2eg6wUIBE4DjYEDHE7j1IlROb7CaXHJnCEzmM+vKjuwNRhzPIYmhaqugWEcf8Rh+iDCF/SM=
   access_key_id:
