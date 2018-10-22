@@ -1,6 +1,35 @@
 language: node_js
+
 node_js:
-  - node
+- node
+
+# Install the necessary cli tools.
+before_install:
+- pip install --upgrade --user awscli
+- npm install -g jsonlint-cli
+
+install: true
+
+# Make sure the cloud formation template is valid.
+script:
+- aws cloudformation validate-template --template-body file://cf_template.json
+- jsonlint-cli cf_template.json
+
+# These are travis encrypted keys for AWS credentials to be used when deploying the cloud formation template.
+env:
+  global:
+    - secure: lAr6W412ihbQeu4hR3K65AqzcZ4h8+pTRDEYidcAfDEM5vB4D0MANZPfvF/ky8uJXV5nq+xauwsqqMQ96B/aGDGdUPh/sVAexzfoACbo1GAudwIhb+eKIZlFHOkza/2rGL5NVjomhY35iaWi2v6zqIfC1NS/JOM3Pq9Eipoe8Ckz59fAjUDq7CqsvgMH1w3lnipjeNwi7L+OIXmLT6KZNBsdC6AM6He8Idt3fBmU9B/6YqRXbQKbnicsawhT9is9ZEJKHIKlkJVcJvEmZOjzlr25GDYvF5hLDmuUA5LBxP3g6/yVaUl/PYqGal3Vtp8dmLZe3XaMoqb/HSHNOsNVXRnduiego+/8ClmUXF2/t2SnCobSRXgqTtjQzQMZq7TTxO81+/bk9adQ8GHBM79ONmvf3fSUlLVnZdOT5rGG3osp9JMxxqvgZg6WgZup7qJXaKpYTSIyFpaD9s0DGcVY8UtlvCqjuHfiZ9KwdBpRgvMrygKesUQz52hjy++M3OSUEZEnvjkhMOqEWiCl84Rio0ye8STCdWH1WdKFvxeTCKSeJlLnbXumKkeLND63m9z2ui1xGd5aU3K2w8cA8X5EG3sMzH4LcJCvuLlJJyt+Fn+9NEwxZCCC4wtwsbibdpS+JoMG+u64+O7gHuee0G5Ulra+nDsuA152+YAcgNGgtxI=
+    - secure: BtvY2l+9TY9EJZ86Bj2X8jKIXl2X//ri2yQu0LkgREoZJr0iy4HBVGxj6aWPHME23Z/FUxkW5cKu0ATVtnSnsNvdfM/BYLyxqs7I8VIXQjuuNzwSK13mpv/w3l4Ohn8k87BUr7IJHZzhrsMQow2TrMbGySg2J8np9eCqZGRFxjIJFTPDlhMb/0gk65X0/JR8wnjtzou/rvJG00gVpAWKeDNaOm48o9hbdtfnN8RfKHCvFdh33/A1VNNS9q14JP7wzK8F3NScLIV0+JDDicWa55LkQefmEhV59h7IWs9Mtx9/LCoIs+E6LTeviSxBDmSzm/DQqeYsP30QSmROvUOcE/CAIOd7P79rXbqpnRXeohk7SUmJzruxd94QQfLgo07Ny4txStb4mQFhA4dZvFr9Vw+GB046R6EK19wu81XredGtM7CyL+/Mr+ZapLIhVva5b3WvlZ8NyjvrIFyrzzni6Oj+cOiW0xyCGr/hXD2c28L7l9Ev5LR03GCXHDqsUcBYhdy5P1j9owsdUzmM8fuFZroHDI+k+v43X32BDE6W7L2Ig45J2Z2CiWe2GJWpmnhqIYVDaPEmYhh50P5QI7KzCWSvprY5G5pwFQWXF2Nwb6soLOc5hgrOXROhI/lUvqOeo2GPPBe20OycHlOXvgRrIyBZAJ8E+clJG5RIbb4GA2c=
+
+# Deploy the cloud formation template
+before_deploy:
+  - aws cloudformation deploy --template-file cf_template.json --stack-name lambda-deployment-stack
+    --no-fail-on-empty-changeset --capabilities CAPABILITY_NAMED_IAM
+
+# This is the bit where our business logic is deployed as a lambda function.
+# Change the role ARN with your specific ARN instance representing the role lambda will use to execute.
+# Secure access keys are again AWS credentials, this time to be used when deploying to lambda.
+# zip makes sure only the js file is uploaded to lambda.
 deploy:
   provider: lambda
   function_name: my_randomize_method

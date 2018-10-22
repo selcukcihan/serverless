@@ -1,0 +1,88 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+    "Resources": {
+        "LambdaExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version" : "2012-10-17",
+                    "Statement": [ {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [ "ec2.amazonaws.com" ]
+                        },
+                        "Action": [ "sts:AssumeRole" ]
+                    } ]
+                },
+                "ManagedPolicyArns": [ "arn:aws:iam::aws:policy/AWSLambdaExecute" ],
+                "RoleName": "my_lambda_role"
+            }
+        },
+        "CreateLambdaPolicy" : {
+            "Type" : "AWS::IAM::ManagedPolicy",
+            "Properties" : {
+                "ManagedPolicyName" : "lambda-create",
+                "PolicyDocument" : {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "lambda:UpdateFunctionCode",
+                                "lambda:GetFunction",
+                                "lambda:UpdateFunctionConfiguration"
+                            ],
+                            "Resource": "arn:aws:lambda:*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": "lambda:CreateFunction",
+                            "Resource": "arn:aws:lambda:*"
+                        }
+                    ]
+                }
+            }
+        },
+        "PassRoleForLambdaPolicy" : {
+            "Type" : "AWS::IAM::ManagedPolicy",
+            "Properties" : {
+                "ManagedPolicyName" : "pass-role-for-lambda",
+                "PolicyDocument" : {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "iam:GetRole",
+                                "iam:PassRole"
+                            ],
+                            "Resource": [
+                                { "Fn::GetAtt" : ["LambdaExecutionRole", "Arn"] }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "DeploymentGroup" : {
+            "Type" : "AWS::IAM::Group",
+            "Properties" : {
+                "Path" : "/",
+                "GroupName": "deployment",
+                "ManagedPolicyArns" : [
+                    { "Ref" : "PassRoleForLambdaPolicy" },
+                    { "Ref" : "CreateLambdaPolicy" }
+                ]
+            }
+        },
+        "DeploymentUser": {
+            "Type": "AWS::IAM::User",
+            "Properties": {
+                "Groups": [ { "Ref": "DeploymentGroup" } ],
+                "Path": "/",
+                "UserName": "travis-ci"
+            }
+        }
+    }
+}
+
